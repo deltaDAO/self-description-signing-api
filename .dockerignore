@@ -1,0 +1,23 @@
+# compiled output
+.vscode
+/node_modules
+
+# code formatter
+.eslintrc
+.eslintignore
+.editorconfig
+.huskyrc
+.lintstagedrc.json
+.prettierrc
+commitlint.config.js
+
+# test
+jest.config.js
+/test
+
+# docker
+Dockerfile
+docker-compose.yml
+
+# k8 secrets
+/k8s/secret*
