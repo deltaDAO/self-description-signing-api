@@ -11,6 +11,12 @@ const TYPE_API_ATH = {
 @Injectable()
 export class AppService {
   async signSelfDescription(selfDescription: any): Promise<any> {
+    const type = this.getSelfDescriptionType(selfDescription)
+    selfDescription.credentialSubject[`gx-${type}:note`] = {
+      '@value': 'Test Self Description signed by deltaDAO for the Gaia-X Hackathon #4',
+      '@type': 'xsd:string'
+    }
+
     const canonizedSD = await this.canonize(selfDescription)
 
     const hash = this.sha256(canonizedSD)
@@ -115,9 +121,15 @@ export class AppService {
     return data
   }
 
-  async verifySelfDescription(selfDescription: any): Promise<any> {
-    const credentialType = selfDescription.selfDescriptionCredential['@type'].find(el => el !== 'VerifiableCredential')
+  private getSelfDescriptionType(selfDescription: any) {
+    const credentialType = selfDescription['@type'].find(el => el !== 'VerifiableCredential')
     const type = TYPE_API_ATH[credentialType] || TYPE_API_ATH.LegalPerson
+
+    return type
+  }
+
+  async verifySelfDescription(selfDescription: any): Promise<any> {
+    const type = this.getSelfDescriptionType(selfDescription.selfDescriptionCredential)
     const URL = `${BASE_URL}/api/v1/${type}/verify/raw`
     const { data } = await axios.post(URL, selfDescription)
 
