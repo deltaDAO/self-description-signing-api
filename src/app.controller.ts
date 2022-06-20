@@ -1,12 +1,19 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Post, Res, Body, HttpStatus } from '@nestjs/common'
 import { AppService } from './app.service'
+import { Response } from 'express'
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello()
+  @Post()
+  async sign(@Body() selfDescription: any, @Res() response: Response) {
+    try {
+      const result = await this.appService.signSelfDescription(selfDescription.selfDescription)
+      return response.status(HttpStatus.OK).send(result)
+    } catch (error) {
+      console.error(error)
+      return response.status(HttpStatus.BAD_REQUEST).send(error)
+    }
   }
 }
