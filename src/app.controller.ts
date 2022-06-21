@@ -6,7 +6,7 @@ import { Response } from 'express'
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Post()
+  @Post('/sign')
   async sign(@Body() selfDescription: any, @Res() response: Response) {
     try {
       const result = await this.appService.signSelfDescription(selfDescription.selfDescription)
