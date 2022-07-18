@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import axios from 'axios'
 import { createHash } from 'crypto'
 import * as jose from 'jose'
-const BASE_URL = 'http://compliance.gaia-x.eu'
+
+const BASE_URL = 'http://compliance.gaia-x.eu/api/v2204'
 const TYPE_API_ATH = {
   ServiceOfferingExperimental: 'service-offering',
   LegalPerson: 'participant'
@@ -56,7 +57,7 @@ export class AppService {
   }
 
   async canonize(selfDescription: any): Promise<any> {
-    const URL = BASE_URL + '/api/v1/normalize'
+    const URL = BASE_URL + '/normalize'
     const { data } = await axios.post(URL, selfDescription)
 
     return data
@@ -115,7 +116,7 @@ export class AppService {
   }
 
   async signSd(selfDescription: any, proof: any): Promise<any> {
-    const URL = BASE_URL + '/api/v1/sign'
+    const URL = BASE_URL + '/sign'
     const { data } = await axios.post(URL, { ...selfDescription, proof })
 
     return data
@@ -130,7 +131,7 @@ export class AppService {
 
   async verifySelfDescription(selfDescription: any): Promise<any> {
     const type = this.getSelfDescriptionType(selfDescription.selfDescriptionCredential)
-    const URL = `${BASE_URL}/api/v1/${type}/verify/raw`
+    const URL = `${BASE_URL}/${type}/verify/raw`
     const { data } = await axios.post(URL, selfDescription)
 
     return data
