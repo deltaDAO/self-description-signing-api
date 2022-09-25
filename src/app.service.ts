@@ -3,7 +3,9 @@ import axios from 'axios'
 import { createHash } from 'crypto'
 import * as jose from 'jose'
 
-const BASE_URL = 'http://compliance.gaia-x.eu/api/v2204'
+const BASE_URL = process.env.BASE_URL || 'https://compliance.gaia-x.eu'
+const API_VERSION = process.env.API_VERSION || '2206'
+
 const TYPE_API_ATH = {
   ServiceOfferingExperimental: 'service-offering',
   LegalPerson: 'participant'
@@ -11,10 +13,14 @@ const TYPE_API_ATH = {
 
 @Injectable()
 export class AppService {
+  private getApiVersionedUrl() {
+    return `${BASE_URL}/v${API_VERSION}/api`
+  }
+
   async signSelfDescription(selfDescription: any): Promise<any> {
     const type = this.getSelfDescriptionType(selfDescription)
     selfDescription.credentialSubject[`gx-${type}:note`] = {
-      '@value': 'Test Self Description signed by deltaDAO for the Gaia-X Hackathon #4',
+      '@value': 'Test Self Description signed by deltaDAO for the Gaia-X Hackathon #5',
       '@type': 'xsd:string'
     }
 
@@ -57,7 +63,7 @@ export class AppService {
   }
 
   async canonize(selfDescription: any): Promise<any> {
-    const URL = BASE_URL + '/normalize'
+    const URL = `${this.getApiVersionedUrl()}/normalize`
     const { data } = await axios.post(URL, selfDescription)
 
     return data
@@ -84,7 +90,7 @@ export class AppService {
 
   async createProof(hash: string): Promise<any> {
     const proof = {
-      type: 'JsonWebKey2020',
+      type: 'JsonWebSignature2020',
       created: this.getCurrentTime(),
       proofPurpose: 'assertionMethod',
       verificationMethod: process.env.VERIFICATION_METHOD,
@@ -116,14 +122,14 @@ export class AppService {
   }
 
   async signSd(selfDescription: any, proof: any): Promise<any> {
-    const URL = BASE_URL + '/sign'
+    const URL = `${this.getApiVersionedUrl()}/sign`
     const { data } = await axios.post(URL, { ...selfDescription, proof })
 
     return data
   }
 
   private getSelfDescriptionType(selfDescription: any) {
-    const credentialType = selfDescription['@type'].find(el => el !== 'VerifiableCredential')
+    const credentialType = selfDescription['type'].find(el => el !== 'VerifiableCredential')
     const type = TYPE_API_ATH[credentialType] || TYPE_API_ATH.LegalPerson
 
     return type
@@ -131,7 +137,7 @@ export class AppService {
 
   async verifySelfDescription(selfDescription: any): Promise<any> {
     const type = this.getSelfDescriptionType(selfDescription.selfDescriptionCredential)
-    const URL = `${BASE_URL}/${type}/verify/raw`
+    const URL = `${this.getApiVersionedUrl()}/${type}/verify/raw`
     const { data } = await axios.post(URL, selfDescription)
 
     return data
