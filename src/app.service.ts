@@ -20,7 +20,7 @@ export class AppService {
   async signSelfDescription(selfDescription: any): Promise<any> {
     const type = this.getSelfDescriptionType(selfDescription)
     selfDescription.credentialSubject[`gx-${type}:note`] = {
-      '@value': 'Test Self Description signed by deltaDAO for the Gaia-X Hackathon #4',
+      '@value': 'Test Self Description signed by deltaDAO for the Gaia-X Hackathon #5',
       '@type': 'xsd:string'
     }
 
